@@ -1,68 +1,11 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
-form = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <style>
-            .error {{ color: red; }}
-        </style>
-    </head>
-    <body>
-        <h1>Signup</h1>
-        <form method="post">
-            <table>
-                <tbody>
-                    <tr>
-                        <td>
-                            <label for="username">Username</label>
-                        </td>
-                        <td>
-                            <input name="username" type="text" value='{username}' />
-                            <span class="error">{username_error}</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="password">Password</label>
-                        </td>
-                        <td>
-                            <input name="password" type="password" value='{password}' />
-                            <span class="error">{password_error}</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="verify">Verify Password</label>
-                        </td>
-                        <td>
-                            <input name="verify" type="password" value='{verify}' />
-                            <span class="error">{verify_error}</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="email">Email (optional)</label>
-                        </td>
-                        <td>
-                            <input name="email" value='{email}' />
-                            <span class="error">{email_error}</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <input type="submit">
-        </form>
-    </body>
-</html>
-"""
-
 @app.route("/")
 def index():
-    return form
+    return render_template("sign_up.html")
 
 @app.route("/", methods=['POST'])
 def sign_up():
@@ -77,49 +20,63 @@ def sign_up():
     email_error = ''
 
     if username == '':
-        username_error = "That's not a valid username"
+        username_error = "Username can't be left blank"
         username = ''
     else:
         if ' ' in username:
-            username_error = "That's not a valid username"        
+            username_error = "Username can't contain spaces"        
             username = ''
         else:
             if len(username) < 3 or len(username) > 20:
-                username_error = "That's not a valid username"        
+                username_error = "Username must be between 3 and 20 characters long"        
                 username = ''
 
     if password == '':
-        password_error = "That's not a valid password"
+        password_error = "Password can't be left blank"
         password = ''
     else:
         if ' ' in password:
-            password_error = "That's not a valid password"        
+            password_error = "Password can't contain spaces"        
             password = ''
         else:
             if len(password) < 3 or len(password) > 20:
-                password_error = "That's not a valid password"        
+                password_error = "Password must be between 3 and 20 characters long"        
                 password = ''
 
-    if verify != password:
-        verify_error = "Passwords don't match"
+    if verify == '':
+        verify_error = "Verify can't be left blank"
         verify = ''
-    
-    if ' ' in email:
-        email_error = "That's not a valid email"        
-        email = ''
     else:
-        if '@' not in email:
-            email_error = "That's not a valid email"        
+        if ' ' in verify:
+            verify_error = "Verify can't contain spaces"        
+            verify = ''
+        else:
+            if len(verify) < 3 or len(verify) > 20:
+                verify_error = "Verify must be between 3 and 20 characters long"        
+                verify = ''    
+            else:
+                if verify != password:
+                    verify_error = "Verify doesn't match password"
+                    verify = ''
+    
+    if email != '':
+        if ' ' in email:
+            email_error = "Email can't contain spaces"        
             email = ''
         else:
-            if '.' not in email:
-                email_error = "That's not a valid email"
+            if len(email) < 3 or len(email) > 20:
+                email_error = "Email must be between 3 and 20 characters long"        
                 email = ''
-    
+            else:
+                if email.count('@') != 1 and email.count('.') != 1:
+                    email_error = "Email must contain one @ and one .(dot)"        
+                    email = ''
+
+            
     if not username_error and not password_error and not verify_error and not email_error:
-        return '<h1>Welcome, ' + username + '!</h1>'
+        return render_template("welcome.html", username = username)
     else:
-        return form.format(username=username, username_error=username_error, 
+        return render_template("sign_up.html", username=username, username_error=username_error, 
             password=password, password_error=password_error, 
             verify=verify, verify_error=verify_error, 
             email=email, email_error=email_error)
