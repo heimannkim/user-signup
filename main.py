@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template
+import cgi
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -74,7 +75,7 @@ def sign_up():
 
             
     if not username_error and not password_error and not verify_error and not email_error:
-        return render_template("welcome.html", username = username)
+        return render_template("welcome.html", username = cgi.escape(username))
     else:
         return render_template("sign_up.html", username=username, username_error=username_error, 
             password=password, password_error=password_error, 
