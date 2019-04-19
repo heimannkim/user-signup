@@ -65,7 +65,7 @@ def sign_up():
             email_error = "Email can't contain spaces"        
             email = ''
         else:
-            if len(email) < 3 or len(email) > 20:
+            if (len(email) < 3 or len(email) > 20):
                 email_error = "Email must be between 3 and 20 characters long"        
                 email = ''
             else:
